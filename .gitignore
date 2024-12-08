@@ -5,3 +5,6 @@
 /logicanalyzer/
 .*.un~
 .*.swp
+
+/pico-sdk
+

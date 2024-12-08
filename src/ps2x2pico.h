@@ -43,50 +43,13 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
-void kb_init(u8 gpio_out, u8 gpio_in);
 void kb_send_key(u8 key, bool is_key_pressed, u8 modifiers);
 void tuh_kb_set_leds(u8 leds);
-bool kb_task();
-
-void ms_init(u8 gpio_out, u8 gpio_in);
 void ms_send_movement(u8 buttons, s8 x, s8 y, s8 z);
-bool ms_task();
+void log_send(const char *format, ...);
+void process_send_queue();
+void process_receive();
 
-
-u32 ps2_frame(u8 byte);
-typedef void (*rx_callback)(u8 byte, u8 prev_byte);
-
-typedef struct {
-  PIO pio;
-  uint sm;
-  queue_t qbytes;
-  queue_t qpacks;
-  rx_callback rx;
-  u8 last_rx;
-  u8 last_tx;
-  u8 sent;
-  u8 busy;
-} ps2out;
-
-void ps2out_init(ps2out* this, PIO pio, u8 data_pin, rx_callback rx);
-void ps2out_task(ps2out* this);
-
-
-typedef struct {
-  PIO pio;
-  uint sm;
-  u8 state;
-  u8 byte;
-} ps2in;
-
-void ps2in_init(ps2in* this, PIO pio, u8 data_pin);
-void ps2in_task(ps2in* this, ps2out* out);
-void ps2in_reset(ps2in* this);
-void ps2in_set(ps2in* this, u8 command, u8 byte);
-
-
-#define KB_EXT_PFX_E0 0xe0 // This is the extended code prefix used in sets 1 and 2
-#define KB_BREAK_2_3 0xf0 // The prefix 0xf0 is the break code prefex in sets 2 and 3 (is send when key is released)
 #define HID2PS2_IDX_MAX 0x73
 #define IS_VALID_KEY(key) (key <= HID2PS2_IDX_MAX || (key >= HID_KEY_CONTROL_LEFT && key <= HID_KEY_GUI_RIGHT))
 #define IS_MOD_KEY(key) (key >= HID_KEY_CONTROL_LEFT && key <= HID_KEY_GUI_RIGHT)
@@ -107,3 +70,5 @@ extern u8 const prt_scn_make_2[];
 extern u8 const prt_scn_break_2[];
 extern u8 const break_make_2[];
 extern u8 const pause_make_2[];
+
+void uart_queue_init();

@@ -27,31 +27,31 @@
 #include "bsp/board_api.h"
 #include "hardware/gpio.h"
 #include "hardware/watchdog.h"
+#include "hardware/uart.h"
+#include "pico/stdlib.h"
 
 int main() {
   board_init();
+  sleep_ms(3000);
   printf("\n%s-%s\n", PICO_PROGRAM_NAME, PICO_PROGRAM_VERSION_STRING);
   
-  gpio_init(LVOUT);
-  gpio_init(LVIN);
-  gpio_set_dir(LVOUT, GPIO_OUT);
-  gpio_set_dir(LVIN, GPIO_OUT);
-  gpio_put(LVOUT, 1);
-  gpio_put(LVIN, 1);
-
   tuh_hid_set_default_protocol(HID_PROTOCOL_REPORT);
   tusb_init();
-  kb_init(KBOUT, KBIN);
-  ms_init(MSOUT, MSIN);
 
+  stdio_init_all();
+
+  uart_queue_init();
+  
+  log_send("\n%s-%s\n", PICO_PROGRAM_NAME, PICO_PROGRAM_VERSION_STRING);
   while(1) {
     tuh_task();
-    kb_task();
-    ms_task();
+    process_send_queue();
+    process_receive();
   }
 }
 
 void reset() {
   printf("\n\n *** PANIC via tinyusb: watchdog reset!\n\n");
-  watchdog_enable(100, false);
+  log_send("PANIC via tinyusb: watchdog reset!");
+  watchdog_enable(1000, false);
 }

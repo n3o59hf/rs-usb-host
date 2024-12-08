@@ -387,7 +387,7 @@ void print_utf16(u16 *temp_buf, size_t buf_len) {
   size_t utf8_len = (size_t) count_utf8_bytes(temp_buf + 1, utf16_len);
   convert_utf16le_to_utf8(temp_buf + 1, utf16_len, (u8 *) temp_buf, sizeof(u16) * buf_len);
   ((u8*) temp_buf)[utf8_len] = '\0';
-  printf("%s", (char*)temp_buf);
+  log_send("%s", (char*)temp_buf);
 }*/
 
 void ms_setup(hid_report_info_t *info) {
@@ -496,7 +496,7 @@ void tuh_hid_mount_cb(u8 dev_addr, u8 instance, u8 const* desc_report, u16 desc_
   // This happens if report descriptor length > CFG_TUH_ENUMERATION_BUFSIZE.
   // Consider increasing #define CFG_TUH_ENUMERATION_BUFSIZE 256 in tusb_config.h
   if(desc_report == NULL && desc_len == 0) {
-    printf("WARNING: HID(%d,%d) skipped!\n", dev_addr, instance);
+    log_send("WARNING: HID(%d,%d) skipped!\n", dev_addr, instance);
     return;
   }
 
@@ -520,31 +520,31 @@ void tuh_hid_mount_cb(u8 dev_addr, u8 instance, u8 const* desc_report, u16 desc_
       break;
   };
 
-  printf("\nHID(%d,%d,%s) mounted\n", dev_addr, instance, hidprotostr);
-  printf(" ID: %04x:%04x\n", vid, pid);
+  log_send("\nHID(%d,%d,%s) mounted\n", dev_addr, instance, hidprotostr);
+  log_send(" ID: %04x:%04x\n", vid, pid);
 
   hid_info[instance].report_count = hid_parse_report_descriptor(hid_info[instance].report_info, MAX_REPORT, desc_report, desc_len);
-  printf(" HID has %u reports\n", hid_info[instance].report_count);
+  log_send(" HID has %u reports\n", hid_info[instance].report_count);
 
-  /*u16 temp_buf[128];
+  // u16 temp_buf[128];
 
-  printf(" Manufacturer: ");
-  if(XFER_RESULT_SUCCESS == tuh_descriptor_get_manufacturer_string_sync(dev_addr, 0x0409, temp_buf, sizeof(temp_buf))) {
-    print_utf16(temp_buf, TU_ARRAY_SIZE(temp_buf));
-  }
-  printf("\n");
+  // log_send(" Manufacturer: ");
+  // if(XFER_RESULT_SUCCESS == tuh_descriptor_get_manufacturer_string_sync(dev_addr, 0x0409, temp_buf, sizeof(temp_buf))) {
+  //   print_utf16(temp_buf, TU_ARRAY_SIZE(temp_buf));
+  // }
+  // log_send("\n");
 
-  printf(" Product:      ");
-  if(XFER_RESULT_SUCCESS == tuh_descriptor_get_product_string_sync(dev_addr, 0x0409, temp_buf, sizeof(temp_buf))) {
-    print_utf16(temp_buf, TU_ARRAY_SIZE(temp_buf));
-  }
-  printf("\n\n");*/
+  // log_send(" Product:      ");
+  // if(XFER_RESULT_SUCCESS == tuh_descriptor_get_product_string_sync(dev_addr, 0x0409, temp_buf, sizeof(temp_buf))) {
+  //   print_utf16(temp_buf, TU_ARRAY_SIZE(temp_buf));
+  // }
+  // log_send("\n\n");
 
   if(hid_if_proto == HID_ITF_PROTOCOL_KEYBOARD || hid_if_proto == HID_ITF_PROTOCOL_MOUSE) {
     if(!tuh_hid_receive_report(dev_addr, instance)) {
-      printf(" ERROR: Could not register for HID(%d,%d,%s)!\n", dev_addr, instance, hidprotostr);
+      log_send(" ERROR: Could not register for HID(%d,%d,%s)!\n", dev_addr, instance, hidprotostr);
     } else {
-      printf(" HID(%d,%d,%s) registered for reports\n", dev_addr, instance, hidprotostr);
+      log_send(" HID(%d,%d,%s) registered for reports\n", dev_addr, instance, hidprotostr);
       if(hid_if_proto == HID_ITF_PROTOCOL_KEYBOARD) {
         for(u8 i = 0; i < 8; i++) {
           if(keyboards[i].dev_addr == 0 && keyboards[i].instance == 0) {
@@ -560,7 +560,7 @@ void tuh_hid_mount_cb(u8 dev_addr, u8 instance, u8 const* desc_report, u16 desc_
 }
 
 void tuh_hid_umount_cb(u8 dev_addr, u8 instance) {
-  printf("HID(%d,%d) unmounted\n", dev_addr, instance);
+  log_send("HID(%d,%d) unmounted\n", dev_addr, instance);
   board_led_write(0);
 
   for(u8 i = 0; i < 8; i++) {
@@ -629,11 +629,11 @@ void tuh_hid_report_received_cb(u8 dev_addr, u8 instance, u8 const* report, u16 
           kb_report_receive(modifiers, report, 6);
 
         } else {
-          printf("keyboard unknown  len: %02x\n", len);
+          log_send("keyboard unknown  len: %02x\n", len);
         }
 
       } else {
-        printf("keyboard unknown  usage_page: %02x  usage: %02x\n", rpt_info->usage_page, rpt_info->usage);
+        log_send("keyboard unknown  usage_page: %02x  usage: %02x\n", rpt_info->usage_page, rpt_info->usage);
       }
       tuh_hid_receive_report(dev_addr, instance);
     break;
@@ -645,7 +645,7 @@ void tuh_hid_report_received_cb(u8 dev_addr, u8 instance, u8 const* report, u16 
         ms_setup(rpt_info);
         ms_report_receive(report, len);
       } else {
-        printf("mouse unknown  usage_page: %02x  usage: %02x\n", rpt_info->usage_page, rpt_info->usage);
+        log_send("mouse unknown  usage_page: %02x  usage: %02x\n", rpt_info->usage_page, rpt_info->usage);
       }
       tuh_hid_receive_report(dev_addr, instance);
     break;
