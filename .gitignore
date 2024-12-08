@@ -5,6 +5,7 @@
 /logicanalyzer/
 .*.un~
 .*.swp
+/.cache/
 
 /pico-sdk
 
