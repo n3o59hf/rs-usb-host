@@ -17,16 +17,16 @@ if (NOT PICO_SDK_VERSION_STRING VERSION_EQUAL "1.5.1")
   message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.5.1 required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
-project(ps2x2pico C CXX ASM)
+project(rs-usb-host C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-add_executable(ps2x2pico src/ps2x2pico.c src/usbin.c src/scancodes.c src/serialout.c)
+add_executable(rs-usb-host src/rs-usb-host.c src/usbin.c src/scancodes.c src/serialout.c)
 
 # print memory usage, enable all warnings
-target_link_options(ps2x2pico PRIVATE -Xlinker --print-memory-usage)
-target_compile_options(ps2x2pico PRIVATE -Wall -Wextra)
+target_link_options(rs-usb-host PRIVATE -Xlinker --print-memory-usage)
+target_compile_options(rs-usb-host PRIVATE -Wall -Wextra)
 
 add_compile_definitions(UART_ID=uart1)
 add_compile_definitions(TX_PIN=4)
@@ -40,13 +40,13 @@ if (MS_RATE_HOST_CONTROL)
     add_compile_definitions(MS_RATE_HOST_CONTROL)
 endif()
 
-pico_set_program_name(ps2x2pico "rs-usb-host")
-pico_set_program_version(ps2x2pico "0.1")
+pico_set_program_name(rs-usb-host "rs-usb-host")
+pico_set_program_version(rs-usb-host "0.1")
 
-pico_enable_stdio_uart(ps2x2pico 1)
-pico_enable_stdio_usb(ps2x2pico 0)
+pico_enable_stdio_uart(rs-usb-host 1)
+pico_enable_stdio_usb(rs-usb-host 0)
 
-target_include_directories(ps2x2pico PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
-target_link_libraries(ps2x2pico pico_stdlib hardware_pio tinyusb_host tinyusb_board)
+target_include_directories(rs-usb-host PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
+target_link_libraries(rs-usb-host pico_stdlib hardware_pio tinyusb_host tinyusb_board)
 
-pico_add_extra_outputs(ps2x2pico)
+pico_add_extra_outputs(rs-usb-host)

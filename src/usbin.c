@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  *
  */
-#include "ps2x2pico.h"
+#include "rs-usb-host.h"
 #include "bsp/board_api.h"
 
 #define MAX_REPORT 4
