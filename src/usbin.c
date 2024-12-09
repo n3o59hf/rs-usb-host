@@ -222,28 +222,30 @@ u8 hid_parse_report_descriptor(hid_report_info_t* report_info_arr, u8 arr_count,
           case RI_MAIN_INPUT:
           case RI_MAIN_OUTPUT:
           case RI_MAIN_FEATURE:
-            u16 offset = (info->num_items == 0) ? 0 : (info->item[info->num_items - 1].bit_offset + info->item[info->num_items - 1].bit_size);
-            for(u8 i = 0; i < ri_report_count; i++) {
-              if(info->num_items + i < MAX_REPORT_ITEMS) {
-                info->item[info->num_items + i].bit_offset = offset;
-                info->item[info->num_items + i].bit_size = ri_report_size;
-                info->item[info->num_items + i].bit_count = ri_report_count;
-                info->item[info->num_items + i].item_type = tag;
-                info->item[info->num_items + i].attributes.logical.min = ri_global_logical_min;
-                info->item[info->num_items + i].attributes.logical.max = ri_global_logical_max;
-                info->item[info->num_items + i].attributes.physical.min = ri_global_physical_min;
-                info->item[info->num_items + i].attributes.physical.max = ri_global_physical_max;
-                info->item[info->num_items + i].attributes.usage.page = ri_global_usage_page;
-                if(ri_report_usage_count != ri_report_count && ri_report_usage_count > 0) {
-                  if(i >= ri_report_usage_count) {
-                    info->item[info->num_items + i].attributes.usage = info->item[info->num_items + i - 1].attributes.usage;
+            {
+              u16 offset = (info->num_items == 0) ? 0 : (info->item[info->num_items - 1].bit_offset + info->item[info->num_items - 1].bit_size);
+              for(u8 i = 0; i < ri_report_count; i++) {
+                if(info->num_items + i < MAX_REPORT_ITEMS) {
+                  info->item[info->num_items + i].bit_offset = offset;
+                  info->item[info->num_items + i].bit_size = ri_report_size;
+                  info->item[info->num_items + i].bit_count = ri_report_count;
+                  info->item[info->num_items + i].item_type = tag;
+                  info->item[info->num_items + i].attributes.logical.min = ri_global_logical_min;
+                  info->item[info->num_items + i].attributes.logical.max = ri_global_logical_max;
+                  info->item[info->num_items + i].attributes.physical.min = ri_global_physical_min;
+                  info->item[info->num_items + i].attributes.physical.max = ri_global_physical_max;
+                  info->item[info->num_items + i].attributes.usage.page = ri_global_usage_page;
+                  if(ri_report_usage_count != ri_report_count && ri_report_usage_count > 0) {
+                    if(i >= ri_report_usage_count) {
+                      info->item[info->num_items + i].attributes.usage = info->item[info->num_items + i - 1].attributes.usage;
+                    }
                   }
                 }
+                offset += ri_report_size;
               }
-              offset += ri_report_size;
+              info->num_items += ri_report_count;
+              ri_report_usage_count = 0;
             }
-            info->num_items += ri_report_count;
-            ri_report_usage_count = 0;
           break;
 
           case RI_MAIN_COLLECTION:
